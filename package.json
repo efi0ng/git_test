@@ -1,0 +1,16 @@
+{
+  "name": "toonkit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable hand-drawn p5.js characters and a frame-exact video render pipeline.",
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "render": "node tools/render.mjs",
+    "stills": "node tools/render.mjs --stills"
+  },
+  "dependencies": {
+    "@fontsource/permanent-marker": "^5.3.0",
+    "p5": "1.11.13"
+  }
+}

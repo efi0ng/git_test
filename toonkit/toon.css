@@ -1,0 +1,8 @@
+@import url('../node_modules/@fontsource/permanent-marker/400.css');
+html, body { margin: 0; background: #1d1512; color: #f4ead5; font: 14px system-ui, sans-serif; }
+#stage canvas { display: block; width: 100vw; max-width: 1920px; height: auto; margin: 0 auto; }
+.toon-controls { display: flex; gap: 12px; align-items: center; padding: 10px 16px; }
+.toon-controls input { flex: 1; }
+.toon-controls button { font: inherit; padding: 6px 14px; border-radius: 6px; border: 0; background: #ffb627; color: #1d1512; cursor: pointer; }
+body.render .toon-controls { display: none; }
+body.render #stage canvas { width: 1920px; }

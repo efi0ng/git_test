@@ -1,0 +1,14 @@
+{
+  "title": "¡DALE!",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "duration": 30,
+  "bpm": 96.0,
+  "offset": 0.024,
+  "audio": "../../assets/music/dale-beat.mp3",
+  "audioStart": 0.0,
+  "energy": "energy.json",
+  "credits": "Music: \"Dale Beat\" (original, synthesized with tools/dembow.py) · Characters & animation: toonkit",
+  "lipSync": false
+}

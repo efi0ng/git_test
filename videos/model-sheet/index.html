@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Toonkit model sheet</title>
+  <link rel="stylesheet" href="../../toonkit/toon.css">
+  <script src="../../node_modules/p5/lib/p5.min.js"></script>
+</head>
+<body>
+  <div id="stage"></div>
+  <script type="module">
+    import { createStage, cast, drawChile, moves, layer, fx } from '../../toonkit/index.js';
+    import cfg from './video.json' with { type: 'json' };
+
+    // Every character in a row of poses: the reference for consistency.
+    const rows = [
+      ['rest', () => ({})],
+      ['bounce', (b) => moves.bounce(b)],
+      ['dembow', (b) => moves.dembow(b + 0.5)],
+      ['rap', (b) => ({ ...moves.rap(b), mouth: 0.8 })],
+      ['hype', (b) => moves.hype(b)],
+      ['toprock', (b) => moves.toprock(b + 0.5)],
+    ];
+    createStage({
+      ...cfg,
+      draw(toon, s) {
+        toon.drawPaper();
+        const { ctx } = toon;
+        const chars = Object.values(cast);
+        toon.layer((ink) => {
+          chars.forEach((ch, ci) => {
+            rows.forEach(([label, fn], ri) => {
+              ink.ctx.save();
+              const pose = layer(ch.restPose, fn(s.beat));
+              ch.draw(ink, { x: 170 + ri * 300, y: 330 + ci * 330, scale: 0.95, pose, t: s.t });
+              ink.ctx.restore();
+            });
+          });
+          for (let i = 0; i < 6; i++) drawChile(ink, { x: 1840, y: 160 + i * 170, beat: s.beat, seed: i, scale: 0.9 });
+        });
+        rows.forEach(([label], ri) => fx.letters(ctx, label, 170 + ri * 300, 40, { size: 34, fill: '#ff3d7f', shadow: 3, outline: 3, seed: ri }));
+      },
+    });
+  </script>
+</body>
+</html>
