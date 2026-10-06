@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Synthesize an original, royalty-free dembow (reggaeton) placeholder beat.
+"""Synthesize an original, royalty-free dembow (reggaeton) beat: kick, dembow
+snare, hats, guira, cowbell, timbal fills, 808-style bass, chord stabs and a
+brass hook. Used as the soundtrack for videos/dale-30s.
 
-    python3 tools/dembow.py assets/music/placeholder-dembow.wav --bpm 96 --bars 13
-    ffmpeg -i assets/music/placeholder-dembow.wav -b:a 192k assets/music/placeholder-dembow.mp3
+    python3 tools/dembow.py assets/music/dale-beat.wav --bpm 96 --bars 13
+    ffmpeg -i assets/music/dale-beat.wav -af "lowpass=f=15000,alimiter=limit=0.89" -b:a 192k assets/music/dale-beat.mp3
 
 Arrangement matches videos/dale-30s: filtered intro bar, drop on bar 1,
 riser into bar 7, big finale, hit + tail at bar 11. Pure numpy.
@@ -44,6 +46,37 @@ def hat(dur=0.05, open_=False):
     noise = rng.normal(0, 1, n)
     noise = np.diff(np.diff(noise, prepend=0), prepend=0)  # bright
     return noise * env(n, 0.0005, 0.08 if open_ else 0.012) * 0.18
+
+
+def guira(dur=0.07, accent=False):
+    """Metal scraper: band-limited noise with a fast rasp."""
+    n = int(SR * (0.12 if accent else dur))
+    t = np.arange(n) / SR
+    noise = np.diff(rng.normal(0, 1, n), prepend=0)
+    rasp = 0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 140 * t))
+    return noise * rasp * env(n, 0.004, 0.05 if accent else 0.025) * (0.16 if accent else 0.09)
+
+
+def cowbell(dur=0.18):
+    n = int(SR * dur)
+    t = np.arange(n) / SR
+    s = np.sign(np.sin(2 * np.pi * 562 * t)) + np.sign(np.sin(2 * np.pi * 845 * t))
+    s = np.convolve(s, np.ones(4) / 4, mode='same')
+    return s * env(n, 0.001, 0.06) * 0.12
+
+
+def brass(freq, dur):
+    """Synth-brass stab: detuned saws with a filter 'blat' on the attack."""
+    n = int(SR * dur)
+    s = (saw(freq, n) + saw(freq * 1.004, n) + 0.5 * saw(freq * 2.002, n)) / 2.5
+    t = np.arange(n) / SR
+    k = 3 + int(9 * np.exp(-t[0] * 0))  # base smoothing width
+    bright = np.convolve(s, np.ones(3) / 3, mode='same')
+    dark = np.convolve(s, np.ones(k * 3) / (k * 3), mode='same')
+    mixw = np.exp(-t * 18)
+    s = bright * mixw + dark * (1 - mixw)
+    a = np.minimum(1, t / 0.012) * np.where(t < dur * 0.75, 1.0, np.maximum(0, 1 - (t - dur * 0.75) / (dur * 0.25)))
+    return s * a * 0.45
 
 
 def timbal(freq, dur=0.25):
@@ -133,6 +166,24 @@ def main():
             for k in range(8):
                 f = hook[k] if bar % 2 == 1 else hook[(k + 3) % 8]
                 place(music, stab([f], 0.16) * 0.7, (bar * 4 + k * 0.5) * spb, 0.7)
+        # Guira in 16ths (accent on the beat) + cowbell on the off-beats.
+        if not intro:
+            for k in range(16):
+                gt = (bar * 4 + k * 0.25) * spb
+                if ending and gt > 44 * spb:
+                    break
+                place(drums, guira(accent=(k % 4 == 0)), gt, 1.0)
+            for k in range(4):
+                if not (ending and bar * 4 + k >= 44):
+                    place(drums, cowbell(), (bar * 4 + k + 0.5) * spb, 0.8 if bar >= 7 else 0.5)
+        # Brass hook answers on bars 2-3, 4-5 and 8-10: "da-da DAA, da-DAA".
+        if bar in (2, 4, 6, 8, 9, 10):
+            riff = [(0.0, 0.2, 440.0), (0.5, 0.2, 440.0), (1.0, 0.45, 523.25), (2.5, 0.2, 493.88), (3.0, 0.55, 440.0)]
+            if bar % 4 == 2 and bar != 2:
+                riff = [(0.0, 0.2, 523.25), (0.5, 0.2, 587.33), (1.0, 0.45, 659.25), (2.5, 0.2, 587.33), (3.0, 0.55, 523.25)]
+            for off, d, f in riff:
+                place(music, brass(f, d * spb * 2), (bar * 4 + off) * spb, 0.9)
+                place(music, brass(f / 2, d * spb * 2), (bar * 4 + off) * spb, 0.5)
         # Timbal fill at the end of every second bar.
         if bar % 2 == 1 and not ending:
             for k, f in enumerate([420, 380, 340, 300]):
@@ -156,7 +207,7 @@ def main():
     music[:ib] = lowpass(music[:ib], 0.08)
 
     mix = drums * 0.9 + music * 0.7
-    mix = np.tanh(mix * 1.3) * 0.8
+    mix = np.tanh(mix * 1.3) * 0.6
     stereo = np.stack([mix, np.roll(mix, 9) * 0.98], axis=1)
     pcm = (np.clip(stereo, -1, 1) * 32767).astype(np.int16)
     with wave.open(a.out, 'wb') as w:

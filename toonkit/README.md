@@ -83,7 +83,11 @@ python3 tools/beats.py path/to/track.mp3 --start 42.0 --video videos/my-video
 This detects the BPM and the beat phase and writes `bpm`, `offset`,
 `audio`, `audioStart` and `energy.json` into the video folder. Choose a
 `--start` on a downbeat. Set `"lipSync": true` to drive mouths from the
-vocal band. `tools/dembow.py` synthesizes an original placeholder beat.
+vocal band.
+
+`tools/dembow.py` synthesizes the original soundtrack used by
+`videos/dale-30s` (`assets/music/dale-beat.mp3`). It's free to reuse, and you
+can change its tempo or length with `--bpm` and `--bars`.
 
 ## Adding a character
 

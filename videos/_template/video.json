@@ -6,7 +6,7 @@
   "duration": 10,
   "bpm": 96,
   "offset": 0,
-  "audio": "../../assets/music/placeholder-dembow.mp3",
+  "audio": "../../assets/music/dale-beat.mp3",
   "audioStart": 0,
   "energy": null,
   "lipSync": false,

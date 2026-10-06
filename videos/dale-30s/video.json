@@ -5,10 +5,10 @@
   "fps": 30,
   "duration": 30,
   "bpm": 96.0,
-  "offset": 0.018,
-  "audio": "../../assets/music/placeholder-dembow.mp3",
+  "offset": 0.024,
+  "audio": "../../assets/music/dale-beat.mp3",
   "audioStart": 0.0,
   "energy": "energy.json",
-  "credits": "Music: placeholder dembow beat (original, tools/dembow.py) · Characters & animation: toonkit",
+  "credits": "Music: \"Dale Beat\" (original, synthesized with tools/dembow.py) · Characters & animation: toonkit",
   "lipSync": false
 }
