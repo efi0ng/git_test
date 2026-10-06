@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>¡DALE!</title>
+  <link rel="stylesheet" href="../../toonkit/toon.css">
+  <script src="../../node_modules/p5/lib/p5.min.js"></script>
+</head>
+<body>
+  <div id="stage"></div>
+  <script type="module">
+    import { createStage } from '../../toonkit/index.js';
+    import { draw } from './scene.js';
+    import cfg from './video.json' with { type: 'json' };
+
+    createStage({
+      ...cfg,
+      audio: cfg.audio ? `./${cfg.audio}` : null,
+      energy: cfg.energy ? `./${cfg.energy}` : null,
+      stepFps: 15, // animate "on twos" for a hand-drawn cadence
+      setup(toon) {
+        toon.credits = cfg.credits;
+        toon.clock.lipSync = !!cfg.lipSync;
+      },
+      draw,
+    });
+  </script>
+</body>
+</html>
